@@ -21,7 +21,31 @@ byteorder = "1.4.3"
 serde_json = "1.0.44"
 anyhow = "1.0.31"
 opentelemetry = { version = "0.13.0", features=["serialize"] }
-opentelemetry-jaeger = "0.13.0"
+
+# XXX: Cannot use current latest opentelemetry-jaeger version (0.13.0) since
+# it fails to compile like this:
+#
+# error[E0700]: hidden type for `impl Trait` captures lifetime that does not appear in bounds
+#   --> src/handler.rs:56:6
+#    |
+# 56 | ) -> Result<()> {
+#    |      ^^^^^^^^^^
+#    |
+# note: hidden type `impl futures::Future` captures lifetime smaller than the function body
+#   --> src/handler.rs:56:6
+#    |
+# 56 | ) -> Result<()> {
+#    |      ^^^^^^^^^^
+#
+# error[E0277]: the trait bound `opentelemetry_jaeger::Exporter: SpanExporter` is not satisfied
+#   --> src/server.rs:74:70
+#    |
+# 74 |                     let f = handler::handle_connection(logger, conn, &exporter);
+#    |                                                                      ^^^^^^^^^ the trait `SpanExporter` is not implemented for `opentelemetry_jaeger::Exporter`
+#    |
+#    = note: required for the cast to the object type `dyn SpanExporter`
+opentelemetry-jaeger = "0.12.0"
+
 protobuf = "=2.14.0"
 tracing-opentelemetry = "0.12.0"
 tracing = "0.1.26"
